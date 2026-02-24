@@ -1,0 +1,93 @@
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: korp_postgres
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
+    ports:
+      - "${PG_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - korp_net
+
+  redis:
+    image: redis:latest
+    container_name: korp_redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - korp_net
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: korp_rabbit
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    networks:
+      - korp_net
+
+  mongo:
+    image: mongo:latest
+    container_name: korp_mongo
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - korp_net
+
+  estoque:
+    build: ./estoque
+    container_name: korp_estoque
+    ports:
+      - "${ESTOQUE_PORT}:5002"
+    depends_on:
+      - postgres
+    networks:
+      - korp_net
+
+  faturamento:
+    build: ./faturamento
+    container_name: korp_faturamento
+    ports:
+      - "${FATURAMENTO_PORT}:5001"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - korp_net
+
+  worker:
+    build: ./worker
+    container_name: korp_worker
+    depends_on:
+      - rabbitmq
+      - mongo
+      - redis
+    networks:
+      - korp_net
+
+  frontend:
+    build: ./frontend
+    container_name: korp_frontend
+    ports:
+      - "${FRONTEND_PORT}:4200"
+    depends_on:
+      - faturamento
+      - estoque
+    networks:
+      - korp_net
+
+volumes:
+  pgdata:
+  mongodata:
+
+networks:
+  korp_net:
+    driver: bridge
