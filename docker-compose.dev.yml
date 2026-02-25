@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "${DB_PORT}:5432"
     volumes:
@@ -40,49 +40,6 @@ services:
       - postgres
     networks:
       - korp_net
-
-
-  faturamento:
-    image: golang:1.25-alpine
-    container_name: korp_faturamento_dev
-    working_dir: /app
-    volumes:
-      - ./faturamento:/app
-    command: sh -c "go mod tidy && go run ./cmd/main"
-    ports:
-      - "${FATURAMENTO_PORT}:5001"
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - rabbitmq
-    networks:
-      - korp_net
-
-
-  worker:
-    image: golang:1.25-alpine
-    container_name: korp_worker_dev
-    working_dir: /app
-    volumes:
-      - ./worker:/app
-    command: sh -c "go mod tidy && go run ./cmd/main"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-    networks:
-      - korp_net
-
-
-  frontend:
-    build: ./frontend
-    container_name: korp_frontend_dev
-    ports:
-      - "${FRONTEND_PORT}:4200"
-    networks:
-      - korp_net
-
 
 volumes:
   pgdata:
