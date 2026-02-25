@@ -14,17 +14,6 @@ services:
     networks:
       - korp_net
 
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: korp_rabbit_dev
-    ports:
-      - "${RABBITMQ_PORT}:5672"
-      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-    networks:
-      - korp_net
-
-
   estoque:
     image: golang:1.25-alpine
     container_name: korp_estoque_dev

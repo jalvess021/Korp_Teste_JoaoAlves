@@ -14,16 +14,6 @@ services:
     networks:
       - korp_net
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: korp_rabbit
-    ports:
-      - "${RABBITMQ_PORT}:5672"
-      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-    networks:
-      - korp_net
-
-
   estoque:
     build:
       context: ./estoque
@@ -50,23 +40,8 @@ services:
       - .env
     depends_on:
       - postgres
-      - rabbitmq
     networks:
       - korp_net
-
-
-  worker:
-    build:
-      context: ./worker
-      dockerfile: Dockerfile
-    container_name: korp_worker
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-    networks:
-      - korp_net
-
 
   frontend:
     build: ./frontend
