@@ -12,8 +12,6 @@ type DatabaseConfig struct {
 	User string
 	Password string
 	Name string
-
-	Uri string
 }
 
 func (c *DatabaseConfig) Validate() {
