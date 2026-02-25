@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	log.SetPrefix("[estoque] ")
 
 	app, err := bootstrap.NewApp()
 	if err != nil {
