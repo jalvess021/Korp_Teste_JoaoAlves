@@ -1,0 +1,92 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: korp_postgres_dev
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - korp_net
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: korp_rabbit_dev
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    networks:
+      - korp_net
+
+
+  estoque:
+    image: golang:1.25-alpine
+    container_name: korp_estoque_dev
+    working_dir: /app
+    volumes:
+      - ./estoque:/app
+    command: sh -c "go mod tidy && go run ./cmd/main"
+    ports:
+      - "${ESTOQUE_PORT}:5002"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - korp_net
+
+
+  faturamento:
+    image: golang:1.25-alpine
+    container_name: korp_faturamento_dev
+    working_dir: /app
+    volumes:
+      - ./faturamento:/app
+    command: sh -c "go mod tidy && go run ./cmd/main"
+    ports:
+      - "${FATURAMENTO_PORT}:5001"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - korp_net
+
+
+  worker:
+    image: golang:1.25-alpine
+    container_name: korp_worker_dev
+    working_dir: /app
+    volumes:
+      - ./worker:/app
+    command: sh -c "go mod tidy && go run ./cmd/main"
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+    networks:
+      - korp_net
+
+
+  frontend:
+    build: ./frontend
+    container_name: korp_frontend_dev
+    ports:
+      - "${FRONTEND_PORT}:4200"
+    networks:
+      - korp_net
+
+
+volumes:
+  pgdata:
+
+networks:
+  korp_net:
+    driver: bridge
