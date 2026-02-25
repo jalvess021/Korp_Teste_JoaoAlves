@@ -24,6 +24,8 @@ func MustLoad() *Config {
 			User: os.Getenv("DB_USER"),
 			Password: os.Getenv("DB_PASSWORD"),
 			Name: os.Getenv("DB_NAME"),
+
+			AutoMigrate: os.Getenv("DB_AUTO_MIGRATE") == "true",
 		},
 	}
 

@@ -12,6 +12,8 @@ type DatabaseConfig struct {
 	User string
 	Password string
 	Name string
+
+	AutoMigrate bool
 }
 
 func (c *DatabaseConfig) Validate() {
