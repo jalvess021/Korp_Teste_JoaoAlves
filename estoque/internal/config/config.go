@@ -13,7 +13,7 @@ func MustLoad() *Config {
 
 	cfg := &Config{
 
-		AppPort: os.Getenv("FATURAMENTO_PORT"),
+		AppPort: os.Getenv("ESTOQUE_PORT"),
 
 		Database: DatabaseConfig{
 
