@@ -31,16 +31,6 @@ services:
     networks:
       - korp_net
 
-  mongo:
-    image: mongo:latest
-    container_name: korp_mongo
-    ports:
-      - "${MONGO_PORT}:27017"
-    volumes:
-      - mongodata:/data/db
-    networks:
-      - korp_net
-
   estoque:
     build: ./estoque
     container_name: korp_estoque
@@ -68,7 +58,6 @@ services:
     container_name: korp_worker
     depends_on:
       - rabbitmq
-      - mongo
       - redis
     networks:
       - korp_net
