@@ -27,7 +27,7 @@ func (c *DatabaseConfig) Validate() {
 			c.validatePostgres()
 
 		default:
-			panic(fmt.Sprintf("driver não suportado: %s", c.Driver))
+			panic(fmt.Errorf("driver não suportado: %s", c.Driver))
 	}
 }
 
