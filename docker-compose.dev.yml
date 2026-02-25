@@ -31,7 +31,7 @@ services:
     working_dir: /app
     volumes:
       - ./estoque:/app
-    command: sh -c "go mod tidy && go run ./cmd/main"
+    command: sh -c "go install github.com/air-verse/air@latest && air"
     ports:
       - "${ESTOQUE_PORT}:5002"
     env_file:
