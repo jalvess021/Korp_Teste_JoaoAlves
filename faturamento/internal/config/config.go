@@ -13,19 +13,30 @@ type Config struct {
 
 func MustLoad() *Config {
 
-	ginMode := os.Getenv("GIN_MODE")
+	appPort := os.Getenv("FATURAMENTO_PORT")
+	if appPort == "" {
+		appPort = "5001"
+	}
 
+	ginMode := os.Getenv("GIN_MODE")
 	if ginMode == "" {
 		ginMode = "release"
 	}
 
+	stockPort := os.Getenv("ESTOQUE_PORT")
+	if stockPort == "" {
+		stockPort = "5002"
+	}
+
+	stockBaseURL := "http://estoque:" + stockPort
+
 	cfg := &Config{
 
-		AppPort: os.Getenv("FATURAMENTO_PORT"),
+		AppPort: appPort,
 
 		GinMode: ginMode,
-		
-		StockBaseURL: os.Getenv("ESTOQUE_PORT"),
+
+		StockBaseURL: stockBaseURL,
 
 		Database: DatabaseConfig{
 
@@ -42,9 +53,6 @@ func MustLoad() *Config {
 	}
 
 	cfg.Database.Validate()
-	if cfg.StockBaseURL == "" {
-		cfg.StockBaseURL = "http://estoque:5002"
-	}
 
 	return cfg
 }
