@@ -2,7 +2,7 @@ package http
 
 import (
 	"database/sql"
-
+	"os"
 	"github.com/gin-gonic/gin"
 	v1handler "github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/handler/v1"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/repository"
@@ -11,6 +11,9 @@ import (
 
 func SetupRouter(db *sql.DB) *gin.Engine {
 
+	if os.Getenv("GIN_MODE") == "" {
+		gin.SetMode(gin.DebugMode)
+	}
 	router := gin.Default()
 
 	productRepo := repository.NewProductRepository(db)
