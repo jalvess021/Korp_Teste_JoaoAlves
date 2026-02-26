@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jalvess021/Korp_Teste_JoaoAlves/faturamento/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/faturamento/internal/service"
 )
@@ -23,7 +24,8 @@ func (h *InvoiceHandler) ListInvoices(c *gin.Context) {
 		return
 	}
 	if invoices == nil {
-		invoices = []any{}
+		c.IndentedJSON(http.StatusOK, []domain.Invoice{})
+		return
 	}
 	c.IndentedJSON(http.StatusOK, invoices)
 }
