@@ -15,6 +15,7 @@ dist/
 .angular/
 *.js.map
 *.js
+!frontend/proxy.conf.js
 
 .env
 
