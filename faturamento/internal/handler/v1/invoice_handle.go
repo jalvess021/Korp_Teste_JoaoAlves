@@ -47,7 +47,7 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) {
 	}
 
 	for i, item := range req.Items {
-		if item.ProductID == "" {
+		if item.ProductID == uuid.Nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "item sem produto especificado"})
 			return
 		}
