@@ -47,6 +47,28 @@ services:
     networks:
       - korp_net
 
+  frontend:
+    image: node:22-alpine
+    container_name: korp_frontend_dev
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm start -- --host 0.0.0.0 --proxy-config proxy.conf.js"
+    ports:
+      - "${FRONTEND_PORT}:4200"
+    environment:
+      - NODE_ENV=development
+      - ESTOQUE_HOST=estoque
+      - FATURAMENTO_HOST=faturamento
+      - ESTOQUE_PORT=${ESTOQUE_PORT}
+      - FATURAMENTO_PORT=${FATURAMENTO_PORT}
+    depends_on:
+      - estoque
+      - faturamento
+    networks:
+      - korp_net
+
 volumes:
   pgdata:
 
