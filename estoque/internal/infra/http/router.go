@@ -42,7 +42,7 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 		c.Redirect(302, "/")
 	})
 
-	api := router.Group("/api")
+	api := router.Group("/estoque-api")
 	{
 		v1 := api.Group("/v1")
 		{
