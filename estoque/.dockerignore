@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# Env
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temp
+tmp/
+dist/
+build/
+
+# Test binaries
+*.test
+
+# OS
+.DS_Store

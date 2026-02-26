@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Build folders
+bin/
+obj/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# User configs
+*.user
+*.suo
+
+# OS
+.DS_Store

@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Angular cache
+.angular/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
