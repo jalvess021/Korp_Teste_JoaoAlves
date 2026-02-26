@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	log.SetPrefix("[estoque] ")
+	log.SetPrefix("[KORP-ESTOQUE] ")
+	log.SetFlags(log.LstdFlags)
 
 	app, err := bootstrap.NewApp()
 	if err != nil {
