@@ -30,6 +30,22 @@ services:
     networks:
       - korp_net
 
+  faturamento:
+    image: golang:1.25-alpine
+    container_name: korp_faturamento_dev
+    working_dir: /app
+    volumes:
+      - ./faturamento:/app
+    command: sh -c "go install github.com/air-verse/air@latest && air"
+    ports:
+      - "${FATURAMENTO_PORT}:5001"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - korp_net
+
 volumes:
   pgdata:
 
