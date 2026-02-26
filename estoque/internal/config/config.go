@@ -12,15 +12,19 @@ type Config struct {
 
 func MustLoad() *Config {
 
-	ginMode := os.Getenv("GIN_MODE")
+	appPort := os.Getenv("ESTOQUE_PORT")
+	if appPort == "" {
+		appPort = "5002"
+	}
 
+	ginMode := os.Getenv("GIN_MODE")
 	if ginMode == "" {
 		ginMode = "release"
 	}
 
 	cfg := &Config{
 
-		AppPort: os.Getenv("ESTOQUE_PORT"),
+		AppPort: appPort,
 
 		GinMode: ginMode,
 
