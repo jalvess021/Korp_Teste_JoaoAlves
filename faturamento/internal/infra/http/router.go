@@ -2,7 +2,6 @@ package http
 
 import (
 	"database/sql"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/faturamento/internal/config"
