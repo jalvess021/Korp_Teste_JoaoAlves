@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/google/uuid"
@@ -30,11 +31,11 @@ func (s *ProductService) CreateProduct(p domain.Product) (domain.Product, error)
 
 type DebitItem struct {
 	ProductID uuid.UUID `json:"productId"`
-	Quantity int `json:"quantity"`
+	Quantity  int       `json:"quantity"`
 }
 
-func (s *ProductService) DebitStock(items []DebitItem) error {
-	tx, err := s.db.Begin()
+func (s *ProductService) DebitStock(ctx context.Context, items []DebitItem) error {
+	tx, err := s.db.BeginTx(ctx, nil)
 
 	if err != nil {
 		return err
@@ -44,6 +45,7 @@ func (s *ProductService) DebitStock(items []DebitItem) error {
 
 	for _, item := range items {
 		err := s.repo.DebitStock(
+			ctx,
 			tx,
 			item.ProductID,
 			item.Quantity,

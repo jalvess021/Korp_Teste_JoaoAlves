@@ -65,7 +65,7 @@ func (h *ProductHandler) DebitStock(c *gin.Context) {
 		return
 	}
 
-	err := h.service.DebitStock(items)
+	err := h.service.DebitStock(c.Request.Context(), items)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusConflict, gin.H{

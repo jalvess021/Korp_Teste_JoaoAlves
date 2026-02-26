@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -81,11 +82,11 @@ func (r *ProductRepository) CreateProduct(p domain.Product) (domain.Product, err
 	return created, nil
 }
 
-func (r *ProductRepository) DebitStock(tx *sql.Tx, productID uuid.UUID, quantity int) error {
+func (r *ProductRepository) DebitStock(ctx context.Context, tx *sql.Tx, productID uuid.UUID, quantity int) error {
 
 	var balance int
 
-	err := tx.QueryRow(`
+	err := tx.QueryRowContext(ctx, `
 		SELECT balance
 		FROM products
 		WHERE id=$1
@@ -100,7 +101,7 @@ func (r *ProductRepository) DebitStock(tx *sql.Tx, productID uuid.UUID, quantity
 		return fmt.Errorf("saldo insuficiente")
 	}
 
-	_, err = tx.Exec(`
+	_, err = tx.ExecContext(ctx, `
 		UPDATE products
 		SET balance = balance - $1
 		WHERE id=$2
