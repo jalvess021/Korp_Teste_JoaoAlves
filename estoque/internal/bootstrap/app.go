@@ -42,7 +42,7 @@ func NewApp() (*App, error) {
 		log.Printf("Migrations de inicialização executadas com sucesso.")
 	}
 
-	router := httpinfra.SetupRouter(db)
+	router := httpinfra.SetupRouter(db, cfg)
 
 	return &App{
 		Config: cfg,

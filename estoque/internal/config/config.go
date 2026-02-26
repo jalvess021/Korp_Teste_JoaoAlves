@@ -6,14 +6,23 @@ import (
 
 type Config struct {
 	AppPort string
+	GinMode string
 	Database DatabaseConfig
 }
 
 func MustLoad() *Config {
 
+	ginMode := os.Getenv("GIN_MODE")
+
+	if ginMode == "" {
+		ginMode = "release"
+	}
+
 	cfg := &Config{
 
 		AppPort: os.Getenv("ESTOQUE_PORT"),
+
+		GinMode: ginMode,
 
 		Database: DatabaseConfig{
 

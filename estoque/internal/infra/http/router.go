@@ -2,18 +2,17 @@ package http
 
 import (
 	"database/sql"
-	"os"
+	"github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/config"
+
 	"github.com/gin-gonic/gin"
 	v1handler "github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/handler/v1"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/repository"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/service"
 )
 
-func SetupRouter(db *sql.DB) *gin.Engine {
+func SetupRouter(db *sql.DB, cfg *config.Config) *gin.Engine {
 
-	if os.Getenv("GIN_MODE") == "" {
-		gin.SetMode(gin.DebugMode)
-	}
+	gin.SetMode(cfg.GinMode)
 	router := gin.Default()
 
 	productRepo := repository.NewProductRepository(db)
@@ -34,7 +33,7 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 
 		c.IndentedJSON(200, gin.H{
 			"service": "estoque",
-			"routes": list,
+			"routes":  list,
 		})
 	})
 
