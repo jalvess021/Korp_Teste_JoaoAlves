@@ -42,6 +42,27 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		return
 	}
 
+	if product.Code == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "código do produto é obrigatório",
+		})
+		return
+	}
+
+	if product.Description == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "descrição do produto é obrigatória",
+		})
+		return
+	}
+
+	if product.Balance < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "saldo não pode ser negativo",
+		})
+		return
+	}
+
 	created, err := h.service.CreateProduct(product)
 
 	if err != nil {
