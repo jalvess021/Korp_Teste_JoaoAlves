@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jalvess021/Korp_Teste_JoaoAlves/faturamento/internal/domain"
 	"github.com/google/uuid"
+	"github.com/jalvess021/Korp_Teste_JoaoAlves/faturamento/internal/domain"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/faturamento/internal/service"
 )
 
@@ -39,6 +39,29 @@ func (h *InvoiceHandler) CreateInvoice(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "dados inválidos"})
 		return
+	}
+
+	if len(req.Items) == 0 {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "nota fiscal deve ter pelo menos um item"})
+		return
+	}
+
+	for i, item := range req.Items {
+		if item.ProductID == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "item sem produto especificado"})
+			return
+		}
+		if item.Quantity <= 0 {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "quantidade do item deve ser maior que zero"})
+			return
+		}
+
+		for j := i + 1; j < len(req.Items); j++ {
+			if req.Items[j].ProductID == item.ProductID {
+				c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "produto duplicado na nota fiscal"})
+				return
+			}
+		}
 	}
 
 	created, err := h.service.CreateInvoice(c.Request.Context(), req.Items)
