@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { FailureSimulationBannerComponent } from './components/failure-simulation-banner/failure-simulation-banner.component';
+import { FailureSimulationBannerComponent } from './components/shared/failure-simulation-banner/failure-simulation-banner.component';
 
 @Component({
   selector: 'app-root',

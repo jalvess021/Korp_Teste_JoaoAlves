@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FailureSimulationService } from '../../services/failure-simulation.service';
+import { FailureSimulationService } from '../../../services/failure-simulation.service';
 
 @Component({
   selector: 'app-failure-simulation-banner',

@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Invoice } from '../../models/invoice.model';
-import { Product } from '../../models/product.model';
-import { InvoiceService } from '../../services/invoice.service';
-import { ProductService } from '../../services/product.service';
-import { FailureSimulationService } from '../../services/failure-simulation.service';
+import { Invoice } from '../../../models/invoice.model';
+import { Product } from '../../../models/product.model';
+import { InvoiceService } from '../../../services/invoice.service';
+import { ProductService } from '../../../services/product.service';
+import { FailureSimulationService } from '../../../services/failure-simulation.service';
 
 @Component({
   selector: 'app-invoice-detail',
