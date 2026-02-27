@@ -22,10 +22,15 @@ export class InvoiceService {
     return this.http.post<Invoice>(this.apiUrl, invoice);
   }
 
-  printInvoice(id: string, idempotencyKey: string): Observable<Invoice> {
-    const headers = new HttpHeaders({
-      'Idempotency-Key': idempotencyKey
+  printInvoice(id: string, idempotencyKey: string, simulateStockFailure = false): Observable<Invoice> {
+    let headers = new HttpHeaders({
+      'Idempotency-Key': idempotencyKey,
     });
+
+    if (simulateStockFailure) {
+      headers = headers.set('X-Simulate-Stock-Failure', 'true');
+    }
+
     return this.http.post<Invoice>(`${this.apiUrl}/${id}/print`, null, { headers });
   }
 }

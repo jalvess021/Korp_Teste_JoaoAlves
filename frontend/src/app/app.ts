@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { FailureSimulationBannerComponent } from './components/failure-simulation-banner/failure-simulation-banner.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FailureSimulationBannerComponent],
   template: `
     <div class="min-h-screen bg-gray-50">
       <nav class="bg-white shadow-md">
@@ -32,11 +33,12 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
         </div>
       </nav>
       
-      <main class="py-6">
+      <main class="py-6 pb-28 md:pb-24">
+        <app-failure-simulation-banner />
         <router-outlet />
       </main>
       
-      <footer class="bg-linear-to-r from-gray-50 to-blue-50 border-t-2 border-blue-200 mt-12">
+      <footer class="fixed bottom-0 inset-x-0 z-40 bg-linear-to-r from-gray-50 to-blue-50 border-t-2 border-blue-200">
         <div class="max-w-7xl mx-auto px-4 py-6">
           <div class="flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="text-gray-700 font-semibold">

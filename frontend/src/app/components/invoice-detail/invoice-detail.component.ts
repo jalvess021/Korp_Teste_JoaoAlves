@@ -5,6 +5,7 @@ import { Invoice } from '../../models/invoice.model';
 import { Product } from '../../models/product.model';
 import { InvoiceService } from '../../services/invoice.service';
 import { ProductService } from '../../services/product.service';
+import { FailureSimulationService } from '../../services/failure-simulation.service';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -127,6 +128,7 @@ export class InvoiceDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private invoiceService = inject(InvoiceService);
   private productService = inject(ProductService);
+  private failureSimulation = inject(FailureSimulationService);
 
   invoice = signal<Invoice | null>(null);
   products = signal<Product[]>([]);
@@ -172,8 +174,9 @@ export class InvoiceDetailComponent implements OnInit {
     this.printSuccess.set(false);
 
     const idempotencyKey = `print-${this.invoice()!.id}-${Date.now()}`;
+    const shouldSimulateFailure = this.failureSimulation.selected();
 
-    this.invoiceService.printInvoice(this.invoice()!.id, idempotencyKey).subscribe({
+    this.invoiceService.printInvoice(this.invoice()!.id, idempotencyKey, shouldSimulateFailure).subscribe({
       next: (updatedInvoice) => {
         this.invoice.set(updatedInvoice);
         this.printSuccess.set(true);
