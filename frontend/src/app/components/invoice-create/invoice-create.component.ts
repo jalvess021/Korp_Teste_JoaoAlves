@@ -5,10 +5,12 @@ import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { InvoiceService } from '../../services/invoice.service';
 import { Product } from '../../models/product.model';
+import { InvoiceCreateConfirmModalComponent, InvoicePendingDisplayItem } from '../invoice-create-confirm-modal/invoice-create-confirm-modal.component';
+import { InvoiceCreateItemRowComponent } from '../invoice-create-item-row/invoice-create-item-row.component';
 
 @Component({
   selector: 'app-invoice-create',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, InvoiceCreateConfirmModalComponent, InvoiceCreateItemRowComponent],
   template: `
     <div class="max-w-5xl mx-auto px-4 py-8">
       <div class="mb-6">
@@ -22,54 +24,13 @@ import { Product } from '../../models/product.model';
         Criar Nova Nota Fiscal
       </h1>
 
-      @if (showConfirmModal()) {
-        <div class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 shadow-2xl animate-[scale-up_0.2s_ease-out]">
-            <div class="text-center mb-6">
-              <div class="text-6xl mb-4">⏱️</div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">Confirmar Criação da Nota</h3>
-              <p class="text-gray-600 mb-4">Revise os itens antes de confirmar</p>
-              <div class="text-5xl font-bold text-blue-600 mb-2">{{ countdown() }}</div>
-              <p class="text-sm text-gray-500">segundos para cancelar</p>
-            </div>
-            
-            <div class="bg-gray-50 rounded-lg p-6 mb-6 text-left max-h-96 overflow-y-auto">
-              <h4 class="font-bold mb-3 text-lg">Itens da Nota:</h4>
-              @for (item of pendingItems; track $index; let i = $index) {
-                @if (item.productId) {
-                  <div class="bg-white p-3 rounded-lg mb-2 border border-gray-200">
-                    <p class="text-sm">
-                      <strong class="text-blue-600">{{ getProductCode(item.productId) }}</strong> - 
-                      {{ getProductDescription(item.productId) }}
-                    </p>
-                    <p class="text-sm text-gray-600 mt-1">
-                      Quantidade: <strong>{{ item.quantity }}</strong> unidades
-                    </p>
-                  </div>
-                }
-              }
-              <div class="mt-4 pt-4 border-t border-gray-300">
-                <p class="font-bold text-lg">Total de itens: {{ pendingItems.length }}</p>
-              </div>
-            </div>
-            
-            <div class="flex gap-3">
-              <button
-                (click)="confirmSubmit()"
-                class="flex-1 bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 font-bold text-lg transition-all transform hover:scale-105"
-              >
-                ✓ Confirmar e Criar
-              </button>
-              <button
-                (click)="cancelSubmit()"
-                class="flex-1 bg-red-600 text-white py-4 px-6 rounded-lg hover:bg-red-700 font-bold text-lg transition-all transform hover:scale-105"
-              >
-                ✗ Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      }
+      <app-invoice-create-confirm-modal
+        [visible]="showConfirmModal()"
+        [countdown]="countdown()"
+        [items]="pendingDisplayItems()"
+        (confirm)="confirmSubmit()"
+        (cancel)="cancelSubmit()"
+      />
 
       @if (loadingProducts()) {
         <div class="bg-white shadow-xl rounded-2xl p-8 text-center border border-gray-200">
@@ -92,95 +53,23 @@ import { Product } from '../../models/product.model';
           </h2>
 
           @for (item of items(); track $index; let i = $index) {
-            <div class="mb-6 p-6 bg-white rounded-xl shadow-md border border-gray-200">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-lg font-bold text-gray-700">Item #{{ i + 1 }}</span>
-                <button
-                  (click)="removeItem(i)"
-                  type="button"
-                  [disabled]="items().length === 1"
-                  class="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all"
-                  title="Remover item"
-                >
-                  🗑️ Remover
-                </button>
-              </div>
-              
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">
-                    Produto * 
-                    @if (!item.productId && searchTerms()[i]) {
-                      <span class="text-xs font-normal text-gray-500">(buscando: "{{ searchTerms()[i] }}")</span>
-                    }
-                  </label>
-                  
-                  <div class="relative">
-                    <input
-                      [(ngModel)]="searchTerms()[i]"
-                      (input)="filterProducts(i)"
-                      (focus)="showDropdown(i)"
-                      type="text"
-                      placeholder="🔍 Digite para buscar produto..."
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                    
-                    @if (dropdownVisible()[i] && (filteredProductsForItem()[i]?.length ?? 0) > 0) {
-                      <div class="absolute z-10 w-full mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
-                        @for (product of filteredProductsForItem()[i]; track product.id) {
-                          @if (isProductSelected(product.id, i)) {
-                            <div class="w-full px-4 py-3 text-left bg-gray-100 border-b border-gray-100 opacity-50 cursor-not-allowed">
-                              <div class="font-bold text-gray-400 font-mono">{{ product.code }} 🚫</div>
-                              <div class="text-sm text-gray-500">{{ product.description }}</div>
-                              <div class="text-xs text-red-500 mt-1">
-                                Já selecionado em outro item
-                              </div>
-                            </div>
-                          } @else {
-                            <button
-                              (click)="selectProduct(i, product)"
-                              type="button"
-                              class="w-full px-4 py-3 text-left hover:bg-blue-50 border-b border-gray-100 transition-colors"
-                            >
-                              <div class="font-bold text-blue-600 font-mono">{{ product.code }}</div>
-                              <div class="text-sm text-gray-700">{{ product.description }}</div>
-                              <div class="text-xs text-gray-500 mt-1">
-                                Saldo: <span class="font-semibold text-blue-600">{{ product.balance }}</span> unidades
-                              </div>
-                            </button>
-                          }
-                        }
-                      </div>
-                    }
-                  </div>
-                  
-                  @if (item.productId) {
-                    <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div class="font-bold text-blue-700">✓ Produto Selecionado:</div>
-                      <div class="text-sm mt-1">
-                        <strong class="font-mono">{{ getProductCode(item.productId) }}</strong> - {{ getProductDescription(item.productId) }}
-                      </div>
-                      <div class="text-sm text-gray-600 mt-1">
-                        Saldo disponível: <span class="font-bold text-blue-600">{{ getAvailableBalance(item.productId) }}</span> unidades
-                      </div>
-                    </div>
-                  }
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">Quantidade *</label>
-                  <input
-                    [(ngModel)]="item.quantity"
-                    type="number"
-                    min="1"
-                    [max]="getAvailableBalance(item.productId)"
-                    [disabled]="!item.productId"
-                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-lg disabled:bg-gray-100"
-                    placeholder="Digite a quantidade"
-                  />
-                </div>
-              </div>
-            </div>
+            <app-invoice-create-item-row
+              [index]="i"
+              [item]="item"
+              [canRemove]="items().length > 1"
+              [searchTerm]="searchTerms()[i] || ''"
+              [dropdownVisible]="dropdownVisible()[i] || false"
+              [filteredProducts]="filteredProductsForItem()[i] || []"
+              [selectedProductIds]="selectedProductIds()"
+              [selectedProductCode]="getProductCode(item.productId)"
+              [selectedProductDescription]="getProductDescription(item.productId)"
+              [selectedProductBalance]="getAvailableBalance(item.productId)"
+              (remove)="removeItem(i)"
+              (searchChange)="onSearchTermChange(i, $event)"
+              (focusSearch)="showDropdown(i)"
+              (selectProduct)="selectProduct(i, $event)"
+              (quantityChange)="onQuantityChange(i, $event)"
+            />
           }
 
           <button
@@ -262,6 +151,8 @@ export class InvoiceCreateComponent implements OnInit {
   loading = signal(false);
   loadingProducts = signal(true);
   error = signal('');
+  pendingDisplayItems = signal<InvoicePendingDisplayItem[]>([]);
+  selectedProductIds = computed(() => this.items().map((item) => item.productId).filter(Boolean));
 
   ngOnInit() {
     this.productService.getProducts().subscribe({
@@ -301,6 +192,16 @@ export class InvoiceCreateComponent implements OnInit {
       return updated;
     });
   }
+
+  onSearchTermChange(index: number, term: string) {
+    this.searchTerms.update((terms) => {
+      const updated = [...terms];
+      updated[index] = term;
+      return updated;
+    });
+
+    this.filterProducts(index);
+  }
   
   updateFilteredProducts(index: number, products: Product[]) {
     this.filteredProductsForItem.update(filtered => {
@@ -335,6 +236,14 @@ export class InvoiceCreateComponent implements OnInit {
     this.dropdownVisible.update(visible => {
       const updated = [...visible];
       updated[index] = false;
+      return updated;
+    });
+  }
+
+  onQuantityChange(index: number, quantity: number) {
+    this.items.update((items) => {
+      const updated = [...items];
+      updated[index].quantity = quantity;
       return updated;
     });
   }
@@ -426,6 +335,13 @@ export class InvoiceCreateComponent implements OnInit {
 
     // Armazena items pendentes e abre modal
     this.pendingItems = [...validItems];
+    this.pendingDisplayItems.set(
+      this.pendingItems.map((item) => ({
+        code: this.getProductCode(item.productId),
+        description: this.getProductDescription(item.productId),
+        quantity: item.quantity,
+      }))
+    );
     this.showConfirmModal.set(true);
     this.countdown.set(5);
     this.error.set('');

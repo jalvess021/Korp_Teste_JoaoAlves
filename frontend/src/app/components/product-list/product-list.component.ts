@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { Product, CreateProductRequest } from '../../models/product.model';
+import { ProductListTableComponent } from '../product-list-table/product-list-table.component';
+import { ProductCreateConfirmModalComponent } from '../product-create-confirm-modal/product-create-confirm-modal.component';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProductListTableComponent, ProductCreateConfirmModalComponent],
   template: `
     <div class="max-w-7xl mx-auto px-4 py-8">
       <h1 class="text-4xl font-bold text-gray-900 mb-8 flex items-center gap-3">
@@ -21,40 +23,13 @@ import { Product, CreateProductRequest } from '../../models/product.model';
           Cadastrar Novo Produto
         </h2>
         
-        @if (showConfirmModal()) {
-          <div class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50">
-            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-[scale-up_0.2s_ease-out]">
-              <div class="text-center mb-6">
-                <div class="text-6xl mb-4">⏱️</div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Confirmar Cadastro</h3>
-                <p class="text-gray-600 mb-4">Deseja cadastrar este produto?</p>
-                <div class="text-5xl font-bold text-blue-600 mb-2">{{ countdown() }}</div>
-                <p class="text-sm text-gray-500">segundos para cancelar</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                <p class="text-sm text-gray-700"><strong>Código:</strong> {{ pendingProduct.code }}</p>
-                <p class="text-sm text-gray-700"><strong>Descrição:</strong> {{ pendingProduct.description }}</p>
-                <p class="text-sm text-gray-700"><strong>Saldo:</strong> {{ pendingProduct.balance }}</p>
-              </div>
-              
-              <div class="flex gap-3">
-                <button
-                  (click)="confirmSubmit()"
-                  class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 font-semibold transition-all transform hover:scale-105"
-                >
-                  ✓ Confirmar
-                </button>
-                <button
-                  (click)="cancelSubmit()"
-                  class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 font-semibold transition-all transform hover:scale-105"
-                >
-                  ✗ Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        }
+        <app-product-create-confirm-modal
+          [visible]="showConfirmModal()"
+          [countdown]="countdown()"
+          [product]="pendingProduct"
+          (confirm)="confirmSubmit()"
+          (cancel)="cancelSubmit()"
+        />
         
         <form (ngSubmit)="onSubmit()" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -197,116 +172,22 @@ import { Product, CreateProductRequest } from '../../models/product.model';
             <p class="text-gray-500 text-lg">Nenhum produto cadastrado ainda.</p>
           </div>
         } @else {
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
-                      (click)="toggleSort('code')">
-                    Código
-                    @if (sortBy() === 'code') {
-                      <span class="ml-1">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
-                    }
-                  </th>
-                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
-                      (click)="toggleSort('description')">
-                    Descrição
-                    @if (sortBy() === 'description') {
-                      <span class="ml-1">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
-                    }
-                  </th>
-                  <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
-                      (click)="toggleSort('balance')">
-                    Saldo
-                    @if (sortBy() === 'balance') {
-                      <span class="ml-1">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
-                    }
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                @for (product of paginatedProducts(); track product.id) {
-                  <tr class="hover:bg-blue-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="font-bold text-blue-600 font-mono text-lg">{{ product.code }}</span>
-                    </td>
-                    <td class="px-6 py-4 text-gray-700">{{ product.description }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      @if (product.balance > 10) {
-                        <span class="px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800">
-                          ✓ {{ product.balance }} un.
-                        </span>
-                      } @else if (product.balance > 0) {
-                        <span class="px-4 py-2 rounded-full text-sm font-bold bg-yellow-100 text-yellow-800">
-                          ⚠ {{ product.balance }} un.
-                        </span>
-                      } @else {
-                        <span class="px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-800">
-                          ✗ Esgotado
-                        </span>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          
-          <!-- Paginação -->
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div class="flex items-center gap-4">
-                <span class="text-sm text-gray-600 font-semibold">Registros por página:</span>
-                <select
-                  [ngModel]="pageSize()"
-                  (ngModelChange)="pageSize.set(+$event); onPageSizeChange()"
-                  class="px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
-                >
-                  @for (size of pageSizeOptions; track size) {
-                    <option [value]="size">{{ size }}</option>
-                  }
-                </select>
-                <span class="text-sm text-gray-600">
-                  Mostrando {{ (currentPage() - 1) * pageSize() + 1 }} - 
-                  {{ Math.min(currentPage() * pageSize(), filteredProducts().length) }} 
-                  de <strong>{{ filteredProducts().length }}</strong> produtos
-                </span>
-              </div>
-              
-              @if (totalPages() > 1) {
-                <div class="flex gap-2">
-                <button
-                  (click)="previousPage()"
-                  [disabled]="currentPage() === 1"
-                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all"
-                >
-                  ← Anterior
-                </button>
-                
-                @for (page of pageNumbers(); track page) {
-                  <button
-                    (click)="goToPage(page)"
-                    [class.bg-blue-600]="page === currentPage()"
-                    [class.text-white]="page === currentPage()"
-                    [class.hover:bg-blue-700]="page === currentPage()"
-                    [class.hover:bg-gray-100]="page !== currentPage()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg font-semibold transition-all"
-                  >
-                    {{ page }}
-                  </button>
-                }
-                
-                <button
-                  (click)="nextPage()"
-                  [disabled]="currentPage() === totalPages()"
-                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all"
-                >
-                  Próxima →
-                </button>
-                </div>
-              }
-            </div>
-          </div>
+          <app-product-list-table
+            [paginatedProducts]="paginatedProducts()"
+            [sortBy]="sortBy()"
+            [sortDirection]="sortDirection()"
+            [currentPage]="currentPage()"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="pageSizeOptions"
+            [totalPages]="totalPages()"
+            [pageNumbers]="pageNumbers()"
+            [filteredTotal]="filteredProducts().length"
+            (toggleSort)="toggleSort($event)"
+            (previousPage)="previousPage()"
+            (nextPage)="nextPage()"
+            (goToPage)="goToPage($event)"
+            (pageSizeChange)="pageSize.set($event); onPageSizeChange()"
+          />
         }
       </div>
     </div>
@@ -391,9 +272,6 @@ export class ProductListComponent implements OnInit {
     balance: null as any
   };
   
-  // Para usar Math no template
-  Math = Math;
-
   ngOnInit() {
     this.loadProducts();
   }
