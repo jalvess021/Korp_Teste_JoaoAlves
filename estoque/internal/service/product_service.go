@@ -3,11 +3,14 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/domain"
 	"github.com/jalvess021/Korp_Teste_JoaoAlves/estoque/internal/repository"
 )
+
+var ErrProductCodeAlreadyExists = errors.New("product code already exists")
 
 type ProductService struct {
 	repo *repository.ProductRepository
@@ -26,7 +29,20 @@ func (s *ProductService) ListProducts() ([]domain.Product, error) {
 }
 
 func (s *ProductService) CreateProduct(p domain.Product) (domain.Product, error) {
+	exists, err := s.repo.ExistsByCode(p.Code)
+	if err != nil {
+		return domain.Product{}, err
+	}
+
+	if exists {
+		return domain.Product{}, ErrProductCodeAlreadyExists
+	}
+
 	return s.repo.CreateProduct(p)
+}
+
+func IsProductCodeAlreadyExists(err error) bool {
+	return errors.Is(err, ErrProductCodeAlreadyExists)
 }
 
 type DebitItem struct {

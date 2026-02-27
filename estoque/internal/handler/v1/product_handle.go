@@ -66,6 +66,13 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	created, err := h.service.CreateProduct(product)
 
 	if err != nil {
+		if service.IsProductCodeAlreadyExists(err) {
+			c.JSON(http.StatusConflict, gin.H{
+				"error": "já existe um produto com este código",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})

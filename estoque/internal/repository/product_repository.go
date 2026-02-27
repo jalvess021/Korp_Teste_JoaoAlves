@@ -82,6 +82,24 @@ func (r *ProductRepository) CreateProduct(p domain.Product) (domain.Product, err
 	return created, nil
 }
 
+func (r *ProductRepository) ExistsByCode(code string) (bool, error) {
+	var exists bool
+
+	err := r.db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1
+			FROM products
+			WHERE code = $1
+		)
+	`, code).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
 func (r *ProductRepository) DebitStock(ctx context.Context, tx *sql.Tx, productID uuid.UUID, quantity int) error {
 
 	var balance int
