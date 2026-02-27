@@ -140,10 +140,10 @@ cd Korp_Teste_JoaoAlves
 cp .env.example .env
 
 # ambiente dev
-docker-compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build
 
 # ambiente build final
-# docker-compose -f docker-compose.yml up --build
+# docker compose -f docker-compose.yml up --build
 ```
 
 ### Portas (por `.env`)
