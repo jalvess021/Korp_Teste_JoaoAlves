@@ -15,6 +15,8 @@ type StockDebiter interface {
 	DebitStock(ctx context.Context, items []DebitItem) error
 }
 
+var ErrStockUnavailable = errors.New("serviço de estoque indisponível")
+
 type InvoiceService struct {
 	repo  *repository.InvoiceRepository
 	db    *sql.DB
@@ -129,7 +131,7 @@ func (s *InvoiceService) PrintInvoice(ctx context.Context, invoiceID uuid.UUID, 
 	}
 
 	if err := s.stock.DebitStock(ctx, debitItems); err != nil {
-		return domain.Invoice{}, fmt.Errorf("falha ao debitar estoque: %w", err)
+		return domain.Invoice{}, err
 	}
 
 	if err := s.repo.SetInvoiceClosed(ctx, tx, invoiceID); err != nil {
@@ -152,4 +154,8 @@ func (s *InvoiceService) PrintInvoice(ctx context.Context, invoiceID uuid.UUID, 
 
 func IsNotFound(err error) bool {
 	return errors.Is(err, repository.ErrInvoiceNotFound)
+}
+
+func IsStockUnavailable(err error) bool {
+	return errors.Is(err, ErrStockUnavailable)
 }

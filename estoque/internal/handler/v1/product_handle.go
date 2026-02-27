@@ -77,6 +77,13 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 
 func (h *ProductHandler) DebitStock(c *gin.Context) {
 
+	if shouldSimulateStockFailure(c.GetHeader("X-Simulate-Stock-Failure")) {
+		c.IndentedJSON(http.StatusServiceUnavailable, gin.H{
+			"error": "simulação: serviço de estoque indisponível",
+		})
+		return
+	}
+
 	var items []service.DebitItem
 
 	if err := c.ShouldBindJSON(&items); err != nil {
@@ -96,4 +103,8 @@ func (h *ProductHandler) DebitStock(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+func shouldSimulateStockFailure(headerValue string) bool {
+	return headerValue == "true"
 }

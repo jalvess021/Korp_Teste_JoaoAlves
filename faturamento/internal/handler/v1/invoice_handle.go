@@ -100,15 +100,22 @@ func (h *InvoiceHandler) PrintInvoice(c *gin.Context) {
 		return
 	}
 	key := c.GetHeader("Idempotency-Key")
+	simulateStockFailure := c.GetHeader("X-Simulate-Stock-Failure") == "true"
+	ctx := service.WithSimulateStockFailure(c.Request.Context(), simulateStockFailure)
 
-	inv, err := h.service.PrintInvoice(c.Request.Context(), id, key)
+	inv, err := h.service.PrintInvoice(ctx, id, key)
 	if err != nil {
 		status := http.StatusConflict
-		if service.IsNotFound(err) {
-			status = http.StatusNotFound
-		} else if key == "" {
+
+		switch {
+		case key == "":
 			status = http.StatusBadRequest
+		case service.IsNotFound(err):
+			status = http.StatusNotFound
+		case service.IsStockUnavailable(err):
+			status = http.StatusServiceUnavailable
 		}
+
 		c.IndentedJSON(status, gin.H{"error": err.Error()})
 		return
 	}

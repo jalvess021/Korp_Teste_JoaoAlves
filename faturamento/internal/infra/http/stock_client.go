@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -29,33 +30,61 @@ func (s *StockClient) DebitStock(ctx context.Context, items []service.DebitItem)
 		return err
 	}
 
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		s.baseURL+"/estoque-api/v1/stock/debit",
-		bytes.NewReader(body),
-	)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	const maxAttempts = 3
+	var lastErr error
 
-	resp, err := s.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		req, reqErr := http.NewRequestWithContext(
+			ctx,
+			http.MethodPost,
+			s.baseURL+"/estoque-api/v1/stock/debit",
+			bytes.NewReader(body),
+		)
+		if reqErr != nil {
+			return reqErr
+		}
+		req.Header.Set("Content-Type", "application/json")
+		if service.ShouldSimulateStockFailure(ctx) {
+			req.Header.Set("X-Simulate-Stock-Failure", "true")
+		}
 
-	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		return nil
+		resp, doErr := s.client.Do(req)
+		if doErr != nil {
+			lastErr = service.ErrStockUnavailable
+			if attempt < maxAttempts {
+				time.Sleep(time.Duration(attempt) * 200 * time.Millisecond)
+			}
+			continue
+		}
+
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			resp.Body.Close()
+			return nil
+		}
+
+		var payload struct {
+			Error string `json:"error"`
+		}
+		_ = json.NewDecoder(resp.Body).Decode(&payload)
+		resp.Body.Close()
+
+		if resp.StatusCode >= 500 {
+			lastErr = service.ErrStockUnavailable
+			if attempt < maxAttempts {
+				time.Sleep(time.Duration(attempt) * 200 * time.Millisecond)
+			}
+			continue
+		}
+
+		if payload.Error != "" {
+			return fmt.Errorf(payload.Error)
+		}
+		return fmt.Errorf("estoque retornou status %d", resp.StatusCode)
 	}
 
-	var payload struct {
-		Error string `json:"error"`
+	if lastErr != nil {
+		return fmt.Errorf("falha ao debitar estoque após %d tentativas: %w", maxAttempts, lastErr)
 	}
-	_ = json.NewDecoder(resp.Body).Decode(&payload)
-	if payload.Error != "" {
-		return fmt.Errorf(payload.Error)
-	}
-	return fmt.Errorf("estoque retornou status %d", resp.StatusCode)
+
+	return errors.New("falha desconhecida ao debitar estoque")
 }
