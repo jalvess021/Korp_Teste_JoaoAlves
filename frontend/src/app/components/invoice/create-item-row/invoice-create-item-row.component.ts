@@ -40,7 +40,7 @@ import { Product } from '../../../models/product.model';
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
 
-            @if (dropdownVisible && (filteredProducts.length ?? 0) > 0) {
+            @if (dropdownVisible && filteredProducts.length > 0) {
               <div class="absolute z-10 w-full mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
                 @for (product of filteredProducts; track product.id) {
                   @if (isProductSelectedInOtherItem(product.id)) {
