@@ -10,6 +10,7 @@ Aplicação para gestão de produtos e faturamento, com arquitetura de microserv
 - [Tecnologias](#tecnologias)
 - [Como Executar](#como-executar)
 - [Funcionalidades](#funcionalidades)
+- [Responsividade](#responsividade)
 - [Simulação de Falha de Serviço](#simulacao-de-falha-de-servico)
 - [Padrões e Decisões Técnicas](#padroes-e-decisoes-tecnicas)
 - [Autor](#autor)
@@ -162,6 +163,15 @@ docker-compose -f docker-compose.dev.yml up --build
 - Impressão/fechamento de nota com atualização de estoque
 - Simulação controlada de indisponibilidade entre microserviços
 - Paginação, filtros e feedback visual no frontend
+
+---
+
+<a id="responsividade"></a>
+## 📱 Responsividade
+
+- Interface adaptada para desktop, tablet e mobile.
+- Layout com breakpoints responsivos (TailwindCSS) em navegação, formulários, tabelas e ações principais.
+- Componentes críticos (cadastro/listagem de produtos e notas fiscais) mantêm usabilidade em telas menores.
 
 ---
 
