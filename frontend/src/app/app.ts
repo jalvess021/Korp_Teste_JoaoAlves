@@ -11,7 +11,7 @@ import { FailureSimulationBannerComponent } from './components/shared/failure-si
         <div class="max-w-7xl mx-auto px-4">
           <div class="flex justify-between h-16">
             <div class="flex items-center">
-              <h1 class="text-2xl font-bold text-blue-600">Sistema de Estoque e Faturamento</h1>
+              <h1 class="text-2xl font-bold text-blue-600">Sistema Korp</h1>
             </div>
             <div class="flex space-x-4 items-center">
               <a 
@@ -42,7 +42,7 @@ import { FailureSimulationBannerComponent } from './components/shared/failure-si
         <div class="max-w-7xl mx-auto px-4 py-6">
           <div class="flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="text-gray-700 font-semibold">
-              📦 Sistema de Gerenciamento de Estoque e Notas Fiscais
+              📦 Gerenciamento de Estoque e Notas Fiscais
             </div>
             <div class="text-gray-600">
               Desenvolvido por 
