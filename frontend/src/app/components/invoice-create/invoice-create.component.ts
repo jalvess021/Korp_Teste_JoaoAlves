@@ -266,8 +266,9 @@ export class InvoiceCreateComponent implements OnInit {
   ngOnInit() {
     this.productService.getProducts().subscribe({
       next: (products) => {
+        const safeProducts = products ?? [];
         // Filtra apenas produtos com saldo disponível
-        const availableProducts = products.filter(p => p.balance > 0);
+        const availableProducts = safeProducts.filter(p => p.balance > 0);
         this.products.set(availableProducts);
         this.filteredProductsForItem.set([availableProducts]);
         this.loadingProducts.set(false);

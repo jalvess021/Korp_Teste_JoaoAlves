@@ -154,16 +154,16 @@ import { Product, CreateProductRequest } from '../../models/product.model';
             
             <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
               <input
-                [(ngModel)]="searchTerm"
-                (ngModelChange)="filterProducts()"
+                [ngModel]="searchTerm()"
+                (ngModelChange)="searchTerm.set($event); filterProducts()"
                 type="text"
                 placeholder="🔍 Buscar por código ou descrição..."
                 class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-80"
               />
               
               <select
-                [(ngModel)]="sortBy"
-                (ngModelChange)="sortProducts()"
+                [ngModel]="sortBy()"
+                (ngModelChange)="sortBy.set($event); sortProducts()"
                 class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="code">Ordenar: Código</option>
@@ -258,8 +258,8 @@ import { Product, CreateProductRequest } from '../../models/product.model';
               <div class="flex items-center gap-4">
                 <span class="text-sm text-gray-600 font-semibold">Registros por página:</span>
                 <select
-                  [(ngModel)]="pageSize"
-                  (ngModelChange)="onPageSizeChange()"
+                  [ngModel]="pageSize()"
+                  (ngModelChange)="pageSize.set(+$event); onPageSizeChange()"
                   class="px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
                 >
                   @for (size of pageSizeOptions; track size) {
@@ -402,7 +402,7 @@ export class ProductListComponent implements OnInit {
     this.loadingList.set(true);
     this.productService.getProducts().subscribe({
       next: (products) => {
-        this.products.set(products);
+        this.products.set(products ?? []);
         this.filterProducts();
         this.loadingList.set(false);
       },
@@ -429,7 +429,7 @@ export class ProductListComponent implements OnInit {
   
   filterProducts() {
     const term = this.searchTerm().toLowerCase();
-    let filtered = this.products();
+    let filtered = this.products() ?? [];
     
     if (term) {
       filtered = filtered.filter(p => 

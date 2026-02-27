@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Product, CreateProductRequest } from '../models/product.model';
 
 @Injectable({
@@ -11,7 +11,9 @@ export class ProductService {
   private apiUrl = '/estoque-api/v1/products';
 
   getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
+    return this.http.get<Product[] | null>(this.apiUrl).pipe(
+      map((products) => products ?? [])
+    );
   }
 
   createProduct(product: CreateProductRequest): Observable<Product> {
