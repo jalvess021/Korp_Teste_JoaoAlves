@@ -4,18 +4,20 @@ Aplicação para gestão de produtos e faturamento, com arquitetura de microserv
 
 ## 📋 Sumário
 
-- [Visão Geral](#visão-geral)
+- [Visão Geral](#visao-geral)
 - [Arquitetura](#arquitetura)
 - [Estrutura de Pastas](#estrutura-de-pastas)
 - [Tecnologias](#tecnologias)
 - [Como Executar](#como-executar)
 - [Funcionalidades](#funcionalidades)
-- [Padrões e Decisões Técnicas](#padrões-e-decisões-técnicas)
+- [Simulação de Falha de Serviço](#simulacao-de-falha-de-servico)
+- [Padrões e Decisões Técnicas](#padroes-e-decisoes-tecnicas)
 - [Autor](#autor)
-- [Licença](#licença)
+- [Licença](#licenca)
 
 ---
 
+<a id="visao-geral"></a>
 ## 🎯 Visão Geral
 
 Sistema para operação de estoque e notas fiscais com fluxo completo de criação, consulta e fechamento.
@@ -27,6 +29,7 @@ Objetivo técnico do projeto:
 
 ---
 
+<a id="arquitetura"></a>
 ## 🏗️ Arquitetura
 
 ```
@@ -40,7 +43,7 @@ Objetivo técnico do projeto:
 ┌───▼────┐ ┌──▼──────────┐ ┌────▼──────┐
 │Estoque │ │Faturamento  │ │PostgreSQL │
 │ :5002  │ │:5001        │ │   :5432   │
-└───┬────┘ └────┬─────────┘ └───────────┘
+└───┬────┘ └────┬────────┘ └───────────┘
     │           │
     └── HTTP ───┘
 ```
@@ -65,6 +68,7 @@ Objetivo técnico do projeto:
 
 ---
 
+<a id="estrutura-de-pastas"></a>
 ## 📁 Estrutura de Pastas
 
 ```
@@ -99,6 +103,7 @@ frontend/
 
 ---
 
+<a id="tecnologias"></a>
 ## 🛠️ Tecnologias
 
 ### Backend
@@ -119,6 +124,7 @@ frontend/
 
 ---
 
+<a id="como-executar"></a>
 ## 🚀 Como Executar
 
 ### Pré-requisitos
@@ -147,16 +153,28 @@ docker-compose -f docker-compose.dev.yml up --build
 
 ---
 
+<a id="funcionalidades"></a>
 ## ⚙️ Funcionalidades
 
 - Cadastro e listagem de produtos
 - Criação de notas com múltiplos itens
 - Listagem e detalhamento de notas fiscais
 - Impressão/fechamento de nota com atualização de estoque
+- Simulação controlada de indisponibilidade entre microserviços
 - Paginação, filtros e feedback visual no frontend
 
 ---
 
+<a id="simulacao-de-falha-de-servico"></a>
+## 🧪 Simulação de Falha de Serviço
+
+- Ativação por header HTTP (`X-Simulate-Stock-Failure: true`) no fluxo de impressão.
+- O Faturamento propaga o sinal para o Estoque e fecha o ciclo de comunicação entre microserviços.
+- O cenário simula indisponibilidade (`503`) para validar retry com backoff e tratamento de erro ponta a ponta.
+
+---
+
+<a id="padroes-e-decisoes-tecnicas"></a>
 ## 🧠 Padrões e Decisões Técnicas
 
 ### Princípios de design
@@ -172,6 +190,8 @@ docker-compose -f docker-compose.dev.yml up --build
 ### Confiabilidade de negócio
 - idempotência no processo de impressão de nota
 - proteção contra concorrência em operações críticas
+- retry com backoff para comunicação entre serviços
+- tratamento de indisponibilidade (`503`) e mapeamento de erro entre microserviços
 - validações de regra de negócio no fluxo completo
 
 Exemplo simplificado de idempotência (faturamento):
@@ -184,12 +204,14 @@ ON CONFLICT (invoice_id, idempotency_key) DO NOTHING
 
 ---
 
+<a id="autor"></a>
 ## 👤 Autor
 
 João Alves — [@jalvess021](https://github.com/jalvess021)
 
 ---
 
+<a id="licenca"></a>
 ## 📄 Licença
 
 Projeto proprietário. Uso, cópia, modificação, redistribuição e venda não são permitidos sem autorização expressa do autor.
